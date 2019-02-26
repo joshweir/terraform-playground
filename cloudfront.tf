@@ -62,6 +62,7 @@ resource "aws_cloudfront_distribution" "joshs_distribution" {
 
     forwarded_values {
       query_string = false
+      headers = ["Authorization", "User-Agent"]
 
       cookies {
         forward = "all"
