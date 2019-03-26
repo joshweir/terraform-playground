@@ -10,7 +10,7 @@ resource "aws_lambda_function" "josh_lambda" {
   filename      = "hello-world.zip"
   function_name = "Communicate_Josh_Lambda"
   # commented out the below line as i have modified the lambda on the server and dont wanna overwrite with hello_world
-  # source_code_hash = "${base64sha256(file("hello-world.zip"))}"
+  #source_code_hash = "${base64sha256(file("hello-world.zip"))}"
   role          = "${aws_iam_role.role_for_josh_lambda.arn}"
   handler       = "bundle.handler"
   runtime       = "nodejs8.10"
@@ -20,7 +20,7 @@ resource "aws_lambda_function" "josh_lambda" {
 }
 
 resource "aws_iam_role" "role_for_josh_lambda" {
-  name = "Communicate_role_josh"
+  name = "Communicate_role_josh_lambda"
 
   assume_role_policy = <<EOF
 {
@@ -72,5 +72,12 @@ resource "aws_lambda_permission" "allow_apig_call_josh_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.josh_lambda.function_name}"
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "arn:aws:execute-api:${var.aws_region}:${var.smokeball_aws_account}:${local.api_gateway_path}"
+  source_arn    = "arn:aws:execute-api:${var.aws_region}:${var.smokeball_aws_account}:${aws_api_gateway_rest_api.communicate_josh_api.id}/*/POST/public/*"
+}
+
+resource "aws_lambda_permission" "allow_apig_call_josh_lambda_get" {
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.josh_lambda.function_name}"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "arn:aws:execute-api:${var.aws_region}:${var.smokeball_aws_account}:${aws_api_gateway_rest_api.communicate_josh_api.id}/*/GET/public/*"
 }
